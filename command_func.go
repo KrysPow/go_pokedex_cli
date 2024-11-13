@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func commandHelp() error {
+func commandHelp(conf *config) error {
 	fmt.Println("Welcome to the Pokedex")
 	fmt.Println("Usage:")
 	fmt.Println("")
@@ -17,7 +17,41 @@ func commandHelp() error {
 	return nil
 }
 
-func commandExit() error {
+func commandExit(conf *config) error {
 	os.Exit(0)
+	return nil
+}
+
+func commandMap(conf *config) error {
+	listLoc, err := conf.pokeapiClient.ListLocations(conf.nextLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	conf.nextLocationsURL = listLoc.Next
+	conf.previousLocationsURL = listLoc.Previous
+
+	for _, result := range listLoc.Results {
+		fmt.Println(result.Name)
+	}
+	return nil
+}
+
+func commandMapb(conf *config) error {
+	if conf.previousLocationsURL == nil {
+		return fmt.Errorf("You are on the first page")
+	}
+
+	listLoc, err := conf.pokeapiClient.ListLocations(conf.previousLocationsURL)
+	if err != nil {
+		return err
+	}
+
+	conf.nextLocationsURL := listLoc.Next
+	conf.previousLocationsURL := listLoc.Previous
+
+	for _, result := range listLoc.Results {
+		fmt.Println(result.Name)
+	}
 	return nil
 }
