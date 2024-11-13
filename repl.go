@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type cliCommand struct {
@@ -13,23 +14,20 @@ type cliCommand struct {
 }
 
 func startRepl() {
-	reader := bufio.NewReader(os.Stdin)
-	scanner := bufio.NewScanner(reader)
+	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
 		fmt.Print("Pokedex > ")
-		for scanner.Scan() {
-			input := scanner.Text()
-			if _, ok := getCommand()[input]; !ok {
-				fmt.Printf("%s is not a command!\n", input)
-				break
-			}
+		scanner.Scan()
+		input := strings.ToLower(scanner.Text())
+		if _, ok := getCommand()[input]; !ok {
+			fmt.Printf("%s is not a command!\n", input)
+			continue
+		}
 
-			err := getCommand()[input].callback()
-			if err != nil {
-				exitLoop = true
-			}
-			break
+		err := getCommand()[input].callback()
+		if err != nil {
+			fmt.Println(err)
 		}
 	}
 }
