@@ -10,7 +10,9 @@ func commandHelp() error {
 	fmt.Println("Usage:")
 	fmt.Println("")
 	for k, _ := range getCommand() {
-		fmt.Printf("%s: %s\n", getCommand()[k].name, getCommand()[k].description)
+		fmt.Printf("%s: %s\n",
+			getCommand()[k].name,
+			getCommand()[k].description)
 	}
 	return nil
 }
