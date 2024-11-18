@@ -55,3 +55,19 @@ func commandMapb(conf *config) error {
 	}
 	return nil
 }
+
+func commandExplore(conf *config) error {
+	if conf.arg == nil {
+		return fmt.Errorf("No location area given to explore")
+	}
+
+	locAreaDetails, err := conf.pokeapiClient.ListPokemonInArea(conf.arg)
+	if err != nil {
+		return err
+	}
+
+	for _, encounter := range locAreaDetails.PokemonEncounters {
+		fmt.Printf("- %s\n", encounter.Pokemon.Name)
+	}
+	return nil
+}

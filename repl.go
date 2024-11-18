@@ -13,6 +13,7 @@ type config struct {
 	pokeapiClient        pokeapi.Client
 	nextLocationsURL     *string
 	previousLocationsURL *string
+	arg                  *string
 }
 
 type cliCommand struct {
@@ -27,13 +28,24 @@ func startRepl(conf *config) {
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
-		input := strings.ToLower(scanner.Text())
-		if _, ok := getCommand()[input]; !ok {
-			fmt.Printf("%s is not a command!\n", input)
+		command := strings.Fields(scanner.Text())
+
+		if err := scanner.Err(); err != nil {
+			fmt.Printf(("Reading error, try a valid command, use help for commands."))
+		}
+
+		if _, ok := getCommand()[command[0]]; !ok {
+			fmt.Printf("%s is not a command!\n", command[0])
 			continue
 		}
 
-		err := getCommand()[input].callback(conf)
+		if len(command) > 1 {
+			conf.arg = &command[1]
+		} else {
+			conf.arg = nil
+		}
+
+		err := getCommand()[command[0]].callback(conf)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -61,6 +73,11 @@ func getCommand() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays the previous 20 locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore <area>",
+			description: "Explores the given <area>, displays all pokemon occuring in that <area>. <area> can be an ID or the actual name",
+			callback:    commandExplore,
 		},
 	}
 }
