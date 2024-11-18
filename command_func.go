@@ -39,7 +39,7 @@ func commandMap(conf *config) error {
 
 func commandMapb(conf *config) error {
 	if conf.previousLocationsURL == nil {
-		return fmt.Errorf("You are on the first page")
+		return fmt.Errorf("you are on the first page")
 	}
 
 	listLoc, err := conf.pokeapiClient.ListLocations(conf.previousLocationsURL)
@@ -47,8 +47,8 @@ func commandMapb(conf *config) error {
 		return err
 	}
 
-	conf.nextLocationsURL := listLoc.Next
-	conf.previousLocationsURL := listLoc.Previous
+	conf.nextLocationsURL = listLoc.Next
+	conf.previousLocationsURL = listLoc.Previous
 
 	for _, result := range listLoc.Results {
 		fmt.Println(result.Name)
