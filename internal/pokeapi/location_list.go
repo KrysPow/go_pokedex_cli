@@ -98,3 +98,45 @@ func (c *Client) ListPokemonInArea(area *string) (LocationAreaDetails, error) {
 
 	return locAreaDetails, nil
 }
+
+func (c *Client) PokemonDetails(pokemon *string) (PokemonDetails, error) {
+	if pokemon == nil {
+		return PokemonDetails{}, fmt.Errorf("No pokemon to catch")
+	}
+	url := baseURL + "/pokemon/" + *pokemon
+
+	data, ok := c.cache.Get(url)
+	if ok {
+		pokemonDetails := PokemonDetails{}
+		err := json.Unmarshal(data, &pokemonDetails)
+		if err != nil {
+			return PokemonDetails{}, err
+		}
+		return pokemonDetails, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return PokemonDetails{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return PokemonDetails{}, err
+	}
+
+	data, err = io.ReadAll(res.Body)
+	if err != nil {
+		return PokemonDetails{}, err
+	}
+
+	pokemonDetails := PokemonDetails{}
+	err = json.Unmarshal(data, &pokemonDetails)
+	if err != nil {
+		return PokemonDetails{}, err
+	}
+
+	c.cache.Add(url, data)
+
+	return pokemonDetails, nil
+}

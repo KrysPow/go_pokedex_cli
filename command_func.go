@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func commandHelp(conf *config) error {
@@ -70,4 +72,32 @@ func commandExplore(conf *config) error {
 		fmt.Printf("- %s\n", encounter.Pokemon.Name)
 	}
 	return nil
+}
+
+func commandCatch(conf *config) error {
+	pokemonDetails, err := conf.pokeapiClient.PokemonDetails(conf.arg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Throw a Pokeball at %s ", pokemonDetails.Name)
+	for i := 1; i < 4; i++ {
+		fmt.Print(".")
+		time.Sleep(time.Millisecond * time.Duration(i) * 30)
+	}
+	fmt.Println("")
+
+	chances := calculateCatchingChance(pokemonDetails.BaseExperience)
+	if chances < 0.5 {
+		fmt.Printf("%s escaped!\n", pokemonDetails.Name)
+	} else {
+		fmt.Printf("%s was caught!\n", pokemonDetails.Name)
+		conf.caughtPokemon[pokemonDetails.Name] = pokemonDetails
+	}
+	return nil
+}
+
+func calculateCatchingChance(base_exp int) float64 {
+	random := rand.Intn(base_exp)
+	return float64(random) / float64(base_exp)
 }
