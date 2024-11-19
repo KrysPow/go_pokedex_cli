@@ -101,3 +101,25 @@ func calculateCatchingChance(base_exp int) float64 {
 	random := rand.Intn(base_exp)
 	return float64(random) / float64(base_exp)
 }
+
+func commandInspect(conf *config) error {
+	if conf.arg == nil {
+		return fmt.Errorf("A pokemon must be given in combination with <inspect>")
+	}
+	if pokemonDetails, ok := conf.caughtPokemon[*conf.arg]; !ok {
+		return fmt.Errorf("A pokemon that was not caught cannot be inspected. If you used a pokemons ID, use its name to inspect it")
+	} else {
+		fmt.Printf("Name: %s\n", pokemonDetails.Name)
+		fmt.Printf("Height: %v\n", pokemonDetails.Height)
+		fmt.Printf("Weight: %v\n", pokemonDetails.Weight)
+		fmt.Println("Stats:")
+		for _, stat := range pokemonDetails.Stats {
+			fmt.Printf("  -%v: %v\n", stat.Stat.Name, stat.BaseStat)
+		}
+		fmt.Println("Types")
+		for _, typ := range pokemonDetails.Types {
+			fmt.Printf("  -%v\n", typ.Type.Name)
+		}
+	}
+	return nil
+}
